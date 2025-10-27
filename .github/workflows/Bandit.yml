@@ -20,7 +20,10 @@ jobs:
       statuses: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Bandit Scan
         # You may pin to the exact commit or the version.
