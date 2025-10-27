@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Manager</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>User Manager</h1>
+
+  <section class="card-section">
+    <h2>Add User</h2>
+    <div class="card">
+      <input id="name" placeholder="Name">
+      <input id="email" placeholder="Email">
+      <button onclick="addUser()">Add</button>
+      <p id="message"></p>
+    </div>
+  </section>
+
+  <section class="card-section">
+    <h2>Add User and GPA</h2>
+    <div class="card">
+      <input id="gpaName" placeholder="Name">
+      <input id="gpaValue" placeholder="GPA">
+      <button onclick="addUserGpa()">Add</button>
+      <p id="gpamessage"></p>
+    </div>
+  </section>
+
+  <section class="card-section">
+    <h2>View Users</h2>
+    <div class="card">
+      <button onclick="loadUsers()">View Data</button>    
+          <textarea id="userOutput" readonly placeholder="User data will appear here..."></textarea>
+
+    </div>
+  </section>
+
+  <section class="card-section">
+    <h2>View Users GPA</h2>
+    <div class="card">
+      <button onclick="loadUsersGpa()">View Data</button>    
+          <textarea id="userGpaOutput" readonly placeholder="User GPA data will appear here..."></textarea>
+
+    </div>
+  </section>
+
+  <section class="card-section">
+    <h2>Data From PostGres View</h2>
+    <div class="card">
+      <button onclick="loadUsersFromView()">View Data</button>    
+          <textarea id="userOutputfromView" readonly placeholder="User data will appear here..."></textarea>
+
+    </div>
+  </section>
+
+  <section class="card-section">
+    <h2>GPA Data from PostGres View</h2>
+    <div class="card">
+      <button onclick="loadUsersGpaFromView()">View Data</button>    
+          <textarea id="userGpaOutputfromView" readonly placeholder="User GPA data will appear here..."></textarea>
+
+    </div>
+  </section>
+
+  <script>
+    async function loadUsers() {
+      const res = await fetch('/users');
+      const users = await res.json();
+      const out = document.getElementById('userOutput');
+      if (res.ok) {
+        out.value = users.map(user => `${user.name} - ${user.email}`).join('\n');
+      } else {
+        out.value = users.error || 'Failed to load users';
+      }
+    }
+
+    async function loadUsersGpa() {
+      const res = await fetch('/users_gpa');
+      const users = await res.json();
+      const out = document.getElementById('userGpaOutput');
+      if (res.ok) {
+        out.value = users.map(user => `${user.name} - ${user.gpa}`).join('\n');
+      } else {
+        out.value = users.error || 'Failed to load users';
+      }
+    }
+
+    async function addUser() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const res = await fetch('/add_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email })
+      });
+
+      const result = await res.json();
+      const msg = document.getElementById('message');
+      if (res.ok) {
+        msg.textContent = result.status;
+        document.getElementById('name').value = '';
+        document.getElementById('email').value = '';
+      } else {
+        msg.textContent = result.error || 'Something went wrong';
+      }
+    }
+
+    async function addUserGpa() {
+      const name = document.getElementById('gpaName').value;
+      const gpa = document.getElementById('gpaValue').value;
+      const res = await fetch('/add_user_gpa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, gpa })
+      });
+
+      const result = await res.json();
+      const msg = document.getElementById('gpamessage');
+      if (res.ok) {
+        msg.textContent = result.status;
+        document.getElementById('name').value = '';
+        document.getElementById('gpa').value = '';
+      } else {
+        msg.textContent = result.error || 'Something went wrong';
+      }
+    }
+
+    async function loadUsersFromView() {
+      const res = await fetch('/users_views');
+      const users = await res.json();
+      const out = document.getElementById('userOutputfromView');
+      if (res.ok) {
+        out.value = JSON.stringify(users, null, 2);  // ← Dump raw data
+      } else {
+        out.value = users.error || 'Failed to load users from view';
+      }
+    }
+
+    async function loadUsersGpaFromView() {
+      const res = await fetch('/user_gpa_views');
+      const users = await res.json();
+      const out = document.getElementById('userGpaOutputfromView');
+      if (res.ok) {
+        out.value = JSON.stringify(users, null, 2);  // ← Dump raw data
+      } else {
+        out.value = users.error || 'Failed to load users GPA from view';
+      }
+    }
+  </script>
+</body>
+</html>
