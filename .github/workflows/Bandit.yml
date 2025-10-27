@@ -1,0 +1,35 @@
+name: Bandit
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions: {}
+
+jobs:
+  build:
+    name: Bandit
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      # To report GitHub Actions status checks
+      statuses: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+
+      - name: Bandit Scan
+        # You may pin to the exact commit or the version.
+        # uses: shundor/python-bandit-scan@9cc5aa4a006482b8a7f91134412df6772dbda22c
+        uses: shundor/python-bandit-scan@2d0b675b04c80ae42277e10500db06a0a37bae17
+        with: 
+          path: "."
+          level: high
+          confidence: high
+          exit_zero: true           
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
